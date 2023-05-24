@@ -1,0 +1,100 @@
+version: '3.7'
+
+services: 
+  database:
+    image:  mysql:8-oracle
+    mem_limit: 700m
+    ports:
+      - "3306:3306"
+    networks:
+      - user-management-service-network
+    environment:
+      MYSQL_ROOT_PASSWORD: 'ROOTPASSWORD' 
+      MYSQL_USER: 'user' 
+      MYSQL_PASSWORD: 'userrot' 
+      MYSQL_DATABASE: 'services'
+      
+    
+  load-balancer-service:
+    image:  distributed-programing-load-balancer-service:0.0.1-SNAPSHOT
+    mem_limit: 700m
+    ports:
+      - "8761:8761"
+    networks:
+      - user-management-service-network
+    depends_on:
+      - database
+    environment:
+      JAVA_TOOL_OPTIONS: -Djava.version=19
+      
+  integration-service:
+    image:  distributed-programing-integration-service:0.0.1-SNAPSHOT
+    mem_limit: 700m
+    ports:
+      - "8100:8100"
+    networks:
+      - user-management-service-network
+    depends_on:
+      - load-balancer-service
+    environment:
+      EUREKA.CLIENT.SERVICEURL.DEFAULTZONE: http://load-balancer-service:8761/eureka
+      JAVA_TOOL_OPTIONS: -Djava.version=19
+   
+  user-management-service:
+    image:  distributed-programing-restful-service-v1:0.0.1-SNAPSHOT
+    mem_limit: 700m
+    ports:
+      - "8000:8000"
+    networks:
+      - user-management-service-network
+    depends_on:
+      - load-balancer-service
+    environment:
+      EUREKA.CLIENT.SERVICEURL.DEFAULTZONE: http://load-balancer-service:8761/eureka
+      JAVA_TOOL_OPTIONS: -Djava.version=19
+      SPRING.DATASOURCE.URL : jdbc:mysql://database:3306/services
+  
+  post-management-service:
+    image: distributed-programing-restful-service-v2:0.0.1-SNAPSHOT
+    mem_limit: 700m
+    ports:
+      - "8003:8003"
+    networks:
+      - user-management-service-network
+    depends_on:
+      - load-balancer-service
+    environment:
+      EUREKA.CLIENT.SERVICEURL.DEFAULTZONE: http://load-balancer-service:8761/eureka
+      JAVA_TOOL_OPTIONS: -Djava.version=19
+      SPRING.DATASOURCE.URL : jdbc:mysql://database:3306/services
+    
+  web-page:
+    image:  distributed-programing-web-page:0.0.1-SNAPSHOT
+    mem_limit: 700m
+    ports:
+      - "8080:8080"
+    networks:
+      - user-management-service-network
+    environment:
+      ENDPOINT.URL : http://integration-service:8200/integration
+      ENDPOINT.UPLOAD : http://file-management-service:8010/
+      EUREKA.CLIENT.SERVICEURL.DEFAULTZONE: http://load-balancer-service:8761/eureka
+      JAVA_TOOL_OPTIONS: -Djava.version=17
+
+  file-management-service:
+    image: distributed-programing-file-management-service:0.0.1-SNAPSHOT
+    mem_limit: 700m
+    ports:
+      - "8010:8010"
+    networks:
+      - user-management-service-network
+    depends_on:
+      - load-balancer-service
+    environment:
+      EUREKA.CLIENT.SERVICEURL.DEFAULTZONE: http://load-balancer-service:8761/eureka
+      JAVA_TOOL_OPTIONS: -Djava.version=19
+      SPRING.DATASOURCE.URL : jdbc:mysql://database:3306/services
+
+
+networks:
+  user-management-service-network:
