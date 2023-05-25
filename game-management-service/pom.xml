@@ -9,9 +9,9 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.uninorte.sophos</groupId>
-	<artifactId>game-management-serviec</artifactId>
+	<artifactId>game-management-service</artifactId>
 	<version>1.0.0</version>
-	<name>game-management-serviec</name>
+	<name>game-management-service</name>
 	<description>Demo project for Spring Boot</description>
 	<properties>
 		<java.version>17</java.version>
