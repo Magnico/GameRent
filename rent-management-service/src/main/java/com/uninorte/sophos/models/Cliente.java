@@ -1,10 +1,15 @@
-package com.uninorte.sophos;
+package com.uninorte.sophos.models;
+
+import java.util.List;
+
+import com.uninorte.sophos.Renta;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 
 @Entity
 public class Cliente {
@@ -24,13 +29,15 @@ public class Cliente {
 	private String celular;
 	@Column
 	private String fecha_nac;
+	@OneToMany(mappedBy = "cliente")
+    private List<Renta> rentas;
 	
 	public Cliente() {
 		
 	}
 
 	public Cliente(Integer user_id, String identificacion, String nombre, String password, String email, String celular,
-			String fecha_nac) {
+			String fecha_nac, List<Renta> rentas) {
 		super();
 		this.user_id = user_id;
 		this.identificacion = identificacion;
@@ -39,6 +46,7 @@ public class Cliente {
 		this.email = email;
 		this.celular = celular;
 		this.fecha_nac = fecha_nac;
+		this.rentas = rentas;
 	}
 
 	public Integer getUser_id() {
@@ -97,11 +105,19 @@ public class Cliente {
 		this.fecha_nac = fecha_nac;
 	}
 
+	public List<Renta> getRentas() {
+		return rentas;
+	}
+
+	public void setRentas(List<Renta> rentas) {
+		this.rentas = rentas;
+	}
+
 	@Override
 	public String toString() {
 		return "Cliente [user_id=" + user_id + ", identificacion=" + identificacion + ", nombre=" + nombre
 				+ ", password=" + password + ", email=" + email + ", celular=" + celular + ", fecha_nac=" + fecha_nac
-				+ "]";
+				+ ", rentas=" + rentas + "]";
 	}
 	
 }
