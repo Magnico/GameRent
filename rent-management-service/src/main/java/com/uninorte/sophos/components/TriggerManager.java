@@ -110,21 +110,25 @@ public class TriggerManager implements ResourceLoaderAware {
 	
 	
 	public void executePopulateSqlFile() {
-		Resource resource = resourceLoader.getResource("file:/app/populate.sql");
-	    try (InputStream inputStream = resource.getInputStream()) {
-	        byte[] bytes = inputStream.readAllBytes();
-	        String populateSQL = new String(bytes, StandardCharsets.ISO_8859_1);
+		String checkIfExistsQuery = "SELECT COUNT(*) FROM renta_juego;";
+		int count = jdbcTemplate.queryForObject(checkIfExistsQuery, Integer.class);
+		if (count == 0) {
+			Resource resource = resourceLoader.getResource("file:/app/populate.sql");
+		    try (InputStream inputStream = resource.getInputStream()) {
+		        byte[] bytes = inputStream.readAllBytes();
+		        String populateSQL = new String(bytes, StandardCharsets.ISO_8859_1);
 
-	        String[] sqlStatements = populateSQL.split(";");
+		        String[] sqlStatements = populateSQL.split(";");
 
-	        for (String sqlStatement : sqlStatements) {
-	            if (!sqlStatement.trim().isEmpty()) {
-	                jdbcTemplate.execute(sqlStatement);
-	            }
-	        }
-	    } catch (IOException e) {
-	        // Handle IO exception
-	    }
+		        for (String sqlStatement : sqlStatements) {
+		            if (!sqlStatement.trim().isEmpty()) {
+		                jdbcTemplate.execute(sqlStatement);
+		            }
+		        }
+		    } catch (IOException e) {
+		        // Handle IO exception
+		    }
+		}
     }
 
 	@Override

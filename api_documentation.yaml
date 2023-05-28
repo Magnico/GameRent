@@ -1,0 +1,731 @@
+openapi: 3.0.1
+info:
+  title: API de gestión de rentas 
+  description: 
+    "La API de gestión de rentas proporciona endpoints para la gestión de servicios de alquiler. Permite a los usuarios realizar diversas operaciones relacionadas con la gestión de clientes, la gestión de juegos y la gestión de alquileres.\n
+
+    Esta documentación de la API sirve como guía de referencia para los desarrolladores que deseen integrarse con el sistema de Gestión de Alquileres.
+    Proporciona información detallada sobre los puntos finales disponibles, los formatos de solicitud y respuesta, los requisitos de autenticación, etc.\n
+
+    **URL base**: http://localhost:8200"
+  version: v1
+servers:
+  - url: http://localhost:8200
+    description: Integration service URL
+paths:
+  /integration/user/create:
+    post:
+      tags:
+        - Servicio clientes
+      summary: Registrar nuevo cliente
+      operationId: createUser
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Cliente'
+        required: true
+      responses:
+        '201':
+          description: Cliente registrado con exito.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cliente'
+  /integration/renta/create:
+    post:
+      tags:
+        - Servicio rentas
+      summary: Registrar nueva renta
+      operationId: createRent
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Renta'
+        required: true
+      responses:
+        '201':
+          description: Renta registrada con exito.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProofOfPurchase'
+        '409':
+          description: No se pueden rentar más titulos hasta que se realicen las devoluciones faltantes.
+          content:
+            text/plain:
+              schema:
+                type: string
+  /integration/productor/create:
+    post:
+      tags:
+        - Servicio juegos
+      summary: Registrar nuevo productor
+      operationId: createProductor
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Productor'
+        required: true
+      responses:
+        '201':
+          description: Productor registrado con exito.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Productor'
+  /integration/personaje/create:
+    post:
+      tags:
+        - Servicio juegos
+      summary: Registrar nuevo personaje
+      operationId: createPersonaje
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Personaje'
+        required: true
+      responses:
+        '201':
+          description: Personaje registrado con exito.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Personaje'
+  /integration/juego/create:
+    post:
+      tags:
+        - Servicio juegos
+      summary: Registrar nuevo juego
+      operationId: createJuego
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Juego'
+        required: true
+      responses:
+        '201':
+          description: Juego registrado con exito.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Juego'
+  /integration/director/create:
+    post:
+      tags:
+        - Servicio juegos
+      summary: Registrar nuevo director
+      operationId: createdirector
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Director'
+        required: true
+      responses:
+        '201':
+          description: Director registrado con exito.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Director'
+  /integration/renta/return/{renta_id}:
+    patch:
+      tags:
+        - Servicio rentas
+      summary: Pagar renta pendiente
+      operationId: updateState
+      parameters:
+        - name: renta_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Retorno realizado con exito.
+          content:
+            text/plain:
+              schema:
+                type: string
+        '304':
+          description: Retorno no realizado, renta ya retornada.
+          content:
+            text/plain:
+              schema:
+                type: string
+        '404':
+          description: No se encuentra dicha renta.
+          content:
+            text/plain:
+              schema:
+                type: string
+  /integration/user/get/{user_id}:
+    get:
+      tags:
+        - Servicio clientes
+      summary: Recuperar cliente
+      operationId: getUser
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Cliente obtenido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cliente'
+        '404':
+          description: No se encuentra el cliente.
+          content:
+            text/plain:
+              schema:
+                type: string
+  /integration/user/get/all:
+    get:
+      tags:
+        - Servicio clientes
+      summary: Recuperar lista de clientes
+      operationId: getAllUser
+      responses:
+        '200':
+          description: Lista de cliente obtenida.
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Cliente'
+  /integration/renta/get/{renta_id}:
+    get:
+      tags:
+        - Servicio rentas
+      summary: Recuperar renta
+      operationId: getRent
+      parameters:
+        - name: renta_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Renta obtenida.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Renta'
+        '404':
+          description: No se encuentra la renta.
+          content:
+            text/plain:
+              schema:
+                type: string
+  /integration/renta/get/all:
+    get:
+      tags:
+        - Servicio rentas
+      summary: Recuperar lista de rentas
+      operationId: getAllRent
+      responses:
+        '200':
+          description: Lista de rentas obtenida.
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Renta'
+  /integration/renta/frecuent/juego/:
+    get:
+      tags:
+        - Servicio rentas
+      summary: Recuperar juego más rentado
+      operationId: frecuentJuego
+      responses:
+        '200':
+          description: Juego más rentado obtenido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Juego'
+  /integration/renta/frecuent/client/:
+    get:
+      tags:
+        - Servicio rentas
+      summary: Recuperar cliente más frecuente
+      operationId: frecuentClient
+      responses:
+        '200':
+          description: Cliente más frecuente obtenido.
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Cliente'
+  /integration/renta/day/sells:
+    get:
+      tags:
+        - Servicio rentas
+      summary: Recuperar lista de rentas del día
+      operationId: getAllRentDay
+      responses:
+        '200':
+          description: Lista de rentas obtenida.
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Renta'
+  /integration/productor/get/{productor_id}:
+    get:
+      tags:
+        - Servicio juegos
+      summary: Recuperar productor
+      operationId: getProductor
+      parameters:
+        - name: productor_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Productor obtenido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Productor'
+        '404':
+          description: No se encuentra el productor.
+          content:
+            text/plain:
+              schema:
+                type: string
+  /integration/productor/get/all:
+    get:
+      tags:
+        - Servicio juegos
+      summary: Recuperar lista de productores
+      operationId: getAllProductor
+      responses:
+        '200':
+          description: Lista de productores obtenida.
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Productor'
+  /integration/personaje/get/{personaje_id}:
+    get:
+      tags:
+        - Servicio juegos
+      summary: Recuperar personaje
+      operationId: getPersonaje
+      parameters:
+        - name: personaje_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Personaje obtenido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Personaje'
+        '404':
+          description: No se encuentra el personaje.
+          content:
+            text/plain:
+              schema:
+                type: string
+  /integration/personaje/get/all:
+    get:
+      tags:
+        - Servicio juegos
+      summary: Recuperar lista de personajes
+      operationId: getAllPersonaje
+      responses:
+        '200':
+          description: Lista de personajes obtenida.
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Personaje'
+  /integration/juego/info:
+    get:
+      tags:
+        - Servicio juegos
+      summary: Estadistica del juego menos rentado por rango de edad de clientes (10 años)
+      operationId: getLeastFrequentJuegoIdByAgeRange
+      responses:
+        '200':
+          description: Información retornada
+          content:
+            '*/*':
+              schema:
+                type: object
+  /integration/juego/get/{juego_id}:
+    get:
+      tags:
+        - Servicio juegos
+      summary: Recuperar juego
+      operationId: getJuego
+      parameters:
+        - name: juego_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Juego obtenido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Juego'
+        '404':
+          description: No se encuentra el juego.
+          content:
+            text/plain:
+              schema:
+                type: string
+  /integration/juego/get/all:
+    get:
+      tags:
+        - Servicio juegos
+      summary: Recuperar lista de juegos
+      operationId: getJuegos
+      parameters:
+        - name: fecha_pub
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: directorId
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+        - name: personajeId
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+        - name: productorId
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Lista de juegos obtenida.
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Juego'
+  /integration/director/get/{director_id}:
+    get:
+      tags:
+        - Servicio juegos
+      summary: Recuperar director
+      operationId: getdirector
+      parameters:
+        - name: director_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Director obtenido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Director'
+        '404':
+          description: No se encuentra el director.
+          content:
+            text/plain:
+              schema:
+                type: string
+  /integration/director/get/all:
+    get:
+      tags:
+        - Servicio juegos
+      summary: Recuperar lista de directores
+      operationId: getAlldirector
+      responses:
+        '200':
+          description: Lista de directores obtenida.
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Director'
+  /integration/user/delete:
+    delete:
+      tags:
+        - Servicio clientes
+      summary: Eliminar cliente
+      operationId: deleteUser
+      parameters:
+        - name: user_id
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Cliente eliminado.
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Cliente'
+  /integration/renta/delete:
+    delete:
+      tags:
+        - Servicio rentas
+      summary: Eliminar renta
+      operationId: deleteRent
+      parameters:
+        - name: renta_id
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Renta eliminada.
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Renta'
+  /integration/productor/delete:
+    delete:
+      tags:
+        - Servicio juegos
+      summary: Eliminar productor
+      operationId: deleteProductor
+      parameters:
+        - name: productor_id
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Productor eliminado.
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Productor'
+  /integration/personaje/delete:
+    delete:
+      tags:
+        - Servicio juegos
+      summary: Eliminar personaje
+      operationId: deletePersonaje
+      parameters:
+        - name: personaje_id
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Personaje eliminado.
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Personaje'
+  /integration/juego/delete:
+    delete:
+      tags:
+        - Servicio juegos
+      summary: Eliminar juego
+      operationId: deleteJuego
+      parameters:
+        - name: juego_id
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Juego eliminado.
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Juego'
+  /integration/director/delete:
+    delete:
+      tags:
+        - Servicio juegos
+      summary: Eliminar director
+      operationId: deletedirector
+      parameters:
+        - name: director_id
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Director eliminado.
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Director'
+components:
+  schemas:
+    Cliente:
+      type: object
+      properties:
+        user_id:
+          type: integer
+          format: int32
+        identificacion:
+          type: string
+        nombre:
+          type: string
+        password:
+          type: string
+        email:
+          type: string
+        celular:
+          type: string
+        fecha_nac:
+          type: string
+        renta_vencida:
+          type: boolean
+    Director:
+      type: object
+      properties:
+        director_id:
+          type: integer
+          format: int32
+        nombre:
+          type: string
+        fecha_nac:
+          type: string
+        nacionalidad:
+          type: string
+    Juego:
+      type: object
+      properties:
+        juego_id:
+          type: integer
+          format: int32
+        nombre:
+          type: string
+        fecha_pub:
+          type: string
+        plataforma:
+          type: string
+        rentado:
+          type: boolean
+        personajes:
+          type: array
+          items:
+            $ref: '#/components/schemas/Personaje'
+        productores:
+          type: array
+          items:
+            $ref: '#/components/schemas/Productor'
+        director:
+          $ref: '#/components/schemas/Director'
+    Personaje:
+      type: object
+      properties:
+        personaje_id:
+          type: integer
+          format: int32
+        nombre:
+          type: string
+        descripcion:
+          type: string
+    Productor:
+      type: object
+      properties:
+        productor_id:
+          type: integer
+          format: int32
+        nombre:
+          type: string
+        web:
+          type: string
+    Renta:
+      type: object
+      properties:
+        estado:
+          type: string
+        costo:
+          type: number
+          format: double
+        fecha_ven:
+          type: string
+        creationDate:
+          type: string
+        cliente:
+          $ref: '#/components/schemas/Cliente'
+        juegos:
+          type: array
+          items:
+            $ref: '#/components/schemas/Juego'
+        juego:
+          type: array
+          writeOnly: true
+          items:
+            $ref: '#/components/schemas/Juego'
+        rent_id:
+          type: integer
+          format: int32
+    ProofOfPurchase:
+      type: object

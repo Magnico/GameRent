@@ -43,7 +43,7 @@ services:
       JAVA_TOOL_OPTIONS: -Djava.version=19
    
   client-management-service:
-    image:  ejrebolledo/client-management-service:1.0.0
+    image:  ejrebolledo/client-management-service:1.1.0
     mem_limit: 700m
     ports:
       - "8000:8000"
@@ -58,7 +58,7 @@ services:
       SPRING.DATASOURCE.URL : jdbc:mysql://database:3306/services
    
   game-management-service:
-    image:  ejrebolledo/game-management-service:1.0.0
+    image:  ejrebolledo/game-management-service:1.1.0
     mem_limit: 700m
     ports:
       - "8010:8010"
@@ -73,7 +73,7 @@ services:
       SPRING.DATASOURCE.URL : jdbc:mysql://database:3306/services
    
   rent-management-service:
-    image:  ejrebolledo/rent-management-service:1.0.0
+    image:  ejrebolledo/rent-management-service:1.1.1
     mem_limit: 700m
     ports:
       - "8020:8020"
