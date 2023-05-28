@@ -1,5 +1,9 @@
 package com.uninorte.sophos;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+
 import com.uninorte.sophos.models.Cliente;
 import com.uninorte.sophos.models.Juego;
 
@@ -9,7 +13,10 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
 
 
 
@@ -19,31 +26,33 @@ public class Renta {
 	@Id 
 	@GeneratedValue(strategy=GenerationType.AUTO)
 	private Integer renta_id;
-	@Column
+	@Column(nullable=false)
 	private String estado;
-	@Column
+	@Column(nullable=false)
 	private double costo;
-	@Column
+	@Column(nullable=false)
 	private String fecha_ven;
+    @Column(updatable = false,nullable=false)
+    private String creationDate; 
 	@ManyToOne
-    @JoinColumn(name = "cliente_id")
+    @JoinColumn(name = "cliente_id",nullable=false)
     private Cliente cliente;
-    @ManyToOne
-    @JoinColumn(name = "juego_id")
-    private Juego juego;
+	@ManyToMany
+    @JoinTable(name = "renta_juego",
+            joinColumns = @JoinColumn(name = "renta_id"),
+            inverseJoinColumns = @JoinColumn(name = "juego_id"))
+    private List<Juego> juegos;
 	
 	public Renta() {
-		
 	}
 
-	public Renta(Integer rent_id, String estado, double costo, String fecha_ven, Cliente cliente, Juego juego) {
+	public Renta(Integer rent_id, double costo, String fecha_ven, Cliente cliente, List<Juego> juegos) {
 		super();
 		this.renta_id = rent_id;
-		this.estado = estado;
 		this.costo = costo;
 		this.fecha_ven = fecha_ven;
 		this.cliente = cliente;
-		this.juego = juego;
+		this.juegos = juegos;
 	}
 
 	public Integer getRent_id() {
@@ -86,18 +95,38 @@ public class Renta {
 		this.cliente = cliente;
 	}
 
-	public Juego getJuego() {
-		return juego;
+	public List<Juego> getJuegos() {
+		return juegos;
 	}
 
-	public void setJuego(Juego juego) {
-		this.juego = juego;
+	public void setJuego(List<Juego> juegos) {
+		this.juegos = juegos;
+	}
+	
+	public String getCreationDate() {
+		return this.creationDate;
+	}
+	
+	public <T> T getObject(Class<T> returnType) {
+        if (returnType == Juego.class) {
+            return returnType.cast(getJuegos());
+        } else if (returnType == Cliente.class) {
+            return returnType.cast(getCliente());
+        } else {
+            throw new IllegalArgumentException("Invalid class type");
+        }
+    }
+	
+	@PrePersist
+	private void setInitialData() {
+		this.creationDate = LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+		this.estado = "ACTIVA";
 	}
 
 	@Override
 	public String toString() {
 		return "Renta [rent_id=" + renta_id + ", estado=" + estado + ", costo=" + costo + ", fecha_ven=" + fecha_ven
-				+ ", cliente=" + cliente + ", juego=" + juego + "]";
+				+ ", cliente=" + cliente + ", juego=" + juegos + "]";
 	}
 	
 }

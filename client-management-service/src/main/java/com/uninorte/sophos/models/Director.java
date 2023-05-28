@@ -1,13 +1,10 @@
 package com.uninorte.sophos.models;
 
-import java.util.List;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
 
 @Entity
 public class Director {
@@ -21,8 +18,6 @@ public class Director {
 	private String fecha_nac;
 	@Column
 	private String nacionalidad;
-	@OneToMany(mappedBy = "director")
-    private List<Juego> juegos;
 	
 	public Director() {
 		
@@ -35,8 +30,6 @@ public class Director {
 		this.fecha_nac = fecha_nac;
 		this.nacionalidad = nacionalidad;
 	}
-
-
 
 	public Integer getDirector_id() {
 		return director_id;

@@ -1,12 +1,11 @@
 package com.uninorte.sophos;
 
-import java.util.Base64;
 import java.util.List;
-import java.util.Map;
+import java.util.NoSuchElementException;
 
-import org.apache.commons.codec.digest.DigestUtils;
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,6 +15,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 
 @RestController
 public class ClienteController {
@@ -29,72 +34,71 @@ public class ClienteController {
 	}
 	
 	@CrossOrigin(origins = "*")
+	@Operation(summary="Recuperar lista de clientes")
+	@ApiResponses(value= {
+			@ApiResponse(
+					responseCode="200", 
+					description="Lista de cliente obtenida.",
+					content = @Content(array = @ArraySchema(schema = @Schema(implementation = Cliente.class)))
+					)
+			})
 	@GetMapping(path = "/user/get/all")
 	public List<Cliente> getAllUser(){
 		return repository.findAll();
 	}
 	
 	@CrossOrigin(origins = "*")
+	@Operation(summary = "Recuperar cliente")
+	@ApiResponses(value = {
+			@ApiResponse(
+					responseCode = "200", 
+					description = "Cliente obtenido.", 
+					content = @Content(mediaType = "application/json", schema = @Schema(implementation = Cliente.class))
+					),
+			@ApiResponse(
+					responseCode = "404", 
+					description = "No se encuentra el cliente.",
+					content = @Content(mediaType = "text/plain", schema = @Schema(type ="string"))
+					) 
+			})
 	@GetMapping(path = "/user/get/{user_id}")
-	public Cliente getUser(@PathVariable int user_id){		
-		return repository.findById(user_id).get();
-        
+	public ResponseEntity<Object> getUser(@PathVariable int user_id){		
+		try {
+			Cliente cliente = repository.findById(user_id).get();
+			return ResponseEntity.ok(cliente);
+		} catch (NoSuchElementException e) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se encontró la renta asociada con esa ID.");
+		}
 	}
 	
 	@CrossOrigin(origins = "*")
+	@Operation(summary = "Registrar nuevo cliente")
+	@ApiResponses(value = { 
+			@ApiResponse(
+					responseCode = "201", 
+					description = "Cliente registrado con exito.",
+					content = @Content(mediaType = "application/json", schema = @Schema(implementation = Cliente.class))
+					)
+			})
 	@PostMapping(path = "/user/create")
-	public Cliente createUser(@RequestBody Cliente newUser){
-		return repository.save(newUser);
+	public ResponseEntity<Cliente> createUser(@RequestBody Cliente newUser){
+		Cliente cliente = repository.saveAndFlush(newUser);
+		return ResponseEntity.status(HttpStatus.CREATED).body(cliente);
 	}
 	
 	@CrossOrigin(origins = "*")
+	@Operation(summary = "Eliminar cliente")
+	@ApiResponses(value = { 
+			@ApiResponse(
+					responseCode = "200", 
+					description = "Cliente eliminado.",
+					content = @Content(array = @ArraySchema(schema = @Schema(implementation = Cliente.class)))
+					) 
+			})
 	@DeleteMapping(path = "/user/delete")
 	public List<Cliente> deleteUser(@RequestParam Integer user_id){
 		repository.deleteById(user_id);
 		return repository.findAll();
-	} 
-
-	@CrossOrigin(origins = "*")
-	@PostMapping(path="/login")
-	public String logUser( @RequestBody Map<String, String> requestBody){
-		String userIdent = requestBody.get("userIdent");
-		String password = requestBody.get("password");
-		
-		Cliente test = getCliente(userIdent);	
-		if (test != null) {
-			if(test.getPassword().equals(password)) {
-				String Hash = createHash(password, userIdent.toString());
-				test = repository.save(test);
-				JSONObject response = new JSONObject();
-				response.put("token", Hash);
-				response.put("user_name", test.getNombre());
-				response.put("user_id", test.getUser_id());
-				response.put("user_email",test.getEmail());
-				return response.toString();
-			}
-			return null;
-		}
-		return null;
-	}
-	
-	protected String createHash(@PathVariable String pass, @PathVariable String id) {
-		long unix = System.currentTimeMillis() /1000L;
-		String clear_text = pass+unix;
-		String encrypted_text =  DigestUtils.sha256Hex(clear_text);
-		String uncoded = id+";"+encrypted_text+";"+unix;
-		String token = Base64.getEncoder().encodeToString(uncoded.getBytes());
-		return token;
-		
-	}
-
-	public Cliente getCliente(String ident) {
-		List<Cliente> listofUsers = repository.findAll();
-	    for (Cliente user : listofUsers) {
-	        if (user.getIdentificacion().equals(ident)) {
-	            return user;
-	        }
-	    }
-	    return null; // return null if element not found
 	}
 
 }

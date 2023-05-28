@@ -8,9 +8,9 @@
 		<version>3.0.2</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.uninorte.distributed.programming</groupId>
+	<groupId>com.uninorte.sophos</groupId>
 	<artifactId>load-balancer-service</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>1.0.0</version>
 	<name>load-balancer-service</name>
 	<description>Demo project for Spring Boot</description>
 	<properties>
@@ -59,7 +59,7 @@
 				<configuration>
 					<image>
 						<name>
-							distributed-programing-${project.artifactId}:${project.version}
+							${project.artifactId}:${project.version}
 						</name>
 					</image>
 					<pullPolicy>IF_NOT_PRESENT</pullPolicy>

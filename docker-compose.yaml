@@ -1,0 +1,93 @@
+version: '3.9'
+
+services: 
+  database:
+    image:  mysql:8-oracle
+    mem_limit: 700m
+    ports:
+      - "3306:3306"
+    networks:
+      - rent-management-service-network
+    environment:
+      MYSQL_ROOT_PASSWORD: 'rootpassword' 
+      MYSQL_DATABASE: 'services'
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      
+  load-balancer-service:
+    image:  ejrebolledo/load-balancer-service:1.0.0
+    mem_limit: 700m
+    ports:
+      - "8761:8761"
+    networks:
+      - rent-management-service-network
+    depends_on:
+      - database
+    environment:
+      JAVA_TOOL_OPTIONS: -Djava.version=19
+      
+  integration-service:
+    image:  ejrebolledo/integration-service:1.0.0
+    mem_limit: 700m
+    ports:
+      - "8200:8200"
+    networks:
+      - rent-management-service-network
+    depends_on:
+      - load-balancer-service
+    environment:
+      EUREKA.CLIENT.SERVICEURL.DEFAULTZONE: http://load-balancer-service:8761/eureka
+      JAVA_TOOL_OPTIONS: -Djava.version=19
+   
+  client-management-service:
+    image:  ejrebolledo/client-management-service:1.0.0
+    mem_limit: 700m
+    ports:
+      - "8000:8000"
+    networks:
+      - rent-management-service-network
+    depends_on:
+      database:
+        condition: service_healthy
+    environment:
+      EUREKA.CLIENT.SERVICEURL.DEFAULTZONE: http://load-balancer-service:8761/eureka
+      JAVA_TOOL_OPTIONS: -Djava.version=19
+      SPRING.DATASOURCE.URL : jdbc:mysql://database:3306/services
+   
+  game-management-service:
+    image:  ejrebolledo/game-management-service:1.0.0
+    mem_limit: 700m
+    ports:
+      - "8010:8010"
+    networks:
+      - rent-management-service-network
+    depends_on:
+      database:
+        condition: service_healthy
+    environment:
+      EUREKA.CLIENT.SERVICEURL.DEFAULTZONE: http://load-balancer-service:8761/eureka
+      JAVA_TOOL_OPTIONS: -Djava.version=19
+      SPRING.DATASOURCE.URL : jdbc:mysql://database:3306/services
+   
+  rent-management-service:
+    image:  ejrebolledo/rent-management-service:1.0.0
+    mem_limit: 700m
+    ports:
+      - "8020:8020"
+    networks:
+      - rent-management-service-network
+    depends_on:
+      database:
+        condition: service_healthy
+    environment:
+      EUREKA.CLIENT.SERVICEURL.DEFAULTZONE: http://load-balancer-service:8761/eureka
+      JAVA_TOOL_OPTIONS: -Djava.version=19
+      SPRING.DATASOURCE.URL : jdbc:mysql://database:3306/services
+    volumes:
+      - ./populate.sql:/app/populate.sql
+
+networks:
+  rent-management-service-network:

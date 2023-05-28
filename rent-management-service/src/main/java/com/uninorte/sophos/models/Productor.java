@@ -1,13 +1,10 @@
 package com.uninorte.sophos.models;
 
-import java.util.List;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.ManyToMany;
 
 @Entity
 public class Productor {
@@ -19,8 +16,6 @@ public class Productor {
 	private String nombre;
 	@Column
 	private String web;
-	@ManyToMany(mappedBy = "productores")
-    private List<Juego> juegos;
 	
 	public Productor() {
 		

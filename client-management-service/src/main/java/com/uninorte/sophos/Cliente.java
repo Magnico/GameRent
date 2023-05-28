@@ -12,18 +12,20 @@ public class Cliente {
 	@Id 
 	@GeneratedValue(strategy=GenerationType.AUTO)
 	private Integer user_id;
-	@Column
+	@Column(unique=true,nullable=false)
 	private String identificacion;
-	@Column
+	@Column(nullable=false)
 	private String nombre;
-	@Column
+	@Column(nullable=false)
 	private String password;
-	@Column
+	@Column(nullable=false)
 	private String email;
-	@Column
+	@Column(nullable=false)
 	private String celular;
-	@Column
+	@Column(nullable=false)
 	private String fecha_nac;
+	@Column(nullable=false, columnDefinition = "boolean default false")
+	private boolean renta_vencida;
 	
 	public Cliente() {
 		
@@ -97,11 +99,19 @@ public class Cliente {
 		this.fecha_nac = fecha_nac;
 	}
 
+	public boolean isRenta_vencida() {
+		return renta_vencida;
+	}
+
+	public void setRenta_vencida(boolean renta_vencida) {
+		this.renta_vencida = renta_vencida;
+	}
+
 	@Override
 	public String toString() {
 		return "Cliente [user_id=" + user_id + ", identificacion=" + identificacion + ", nombre=" + nombre
 				+ ", password=" + password + ", email=" + email + ", celular=" + celular + ", fecha_nac=" + fecha_nac
-				+ "]";
+				+ ", renta_vencida=" + renta_vencida + "]";
 	}
 	
 }

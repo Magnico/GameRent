@@ -22,12 +22,14 @@ public class Juego {
 	@Id 
 	@GeneratedValue(strategy=GenerationType.AUTO)
 	private Integer juego_id;
-	@Column
+	@Column(nullable=false)
 	private String nombre;
-	@Column
+	@Column(nullable=false)
 	private String fecha_pub;
-	@Column
+	@Column(nullable=false)
 	private String plataforma;
+	@Column(nullable=false, columnDefinition = "boolean default false")
+	private boolean rentado;
 	
 	@ManyToMany
     @JoinTable(
@@ -119,11 +121,18 @@ public class Juego {
 		this.director = director;
 	}
 
+	public boolean isRentado() {
+		return rentado;
+	}
+
+	public void setRentado(boolean rentado) {
+		this.rentado = rentado;
+	}
+
 	@Override
 	public String toString() {
 		return "Juego [juego_id=" + juego_id + ", nombre=" + nombre + ", fecha_pub=" + fecha_pub + ", plataforma="
-				+ plataforma + ", personajes=" + personajes + ", productores=" + productores + ", director=" + director
-				+ "]";
+				+ plataforma + ", rentado=" + rentado + ", personajes=" + personajes + ", productores=" + productores
+				+ ", director=" + director + "]";
 	}
-	
 }
